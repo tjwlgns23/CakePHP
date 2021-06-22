@@ -22,7 +22,7 @@ class ArticlesController extends AppController
 
     public function view($slug)
     {
-        $article = $this->Articles->findBySlug($slug)->firstOrFail();
+        $article = $this->Articles->findBySlug($slug)->contain('Tags')->firstOrFail();
         $this->set(compact('article'));
     }
 
@@ -39,12 +39,15 @@ class ArticlesController extends AppController
             }
             $this->Flash->error(__('Unable to add your article.'));
         }
+        $tags = $this->Articles->Tags->find('list')->all();
+
+        $this->set('tags', $tags);
         $this->set('article', $article);
     }
 
     public function edit($slug)
     {
-        $article = $this->Articles->findBySlug($slug)->firstOrFail();
+        $article = $this->Articles->findBySlug($slug)->contain('Tags')->firstOrFail();
         if ($this->request->is(['post', 'put'])) {
             $this->Articles->patchEntity($article, $this->request->getData());
             if ($this->Articles->save($article)) {
@@ -53,6 +56,9 @@ class ArticlesController extends AppController
             }
             $this->Flash->error(__('Unable to update your article.'));
         }
+        $tags = $this->Articles->Tags->find('list')->all();
+
+        $this->set('tags', $tags);
         $this->set('article', $article);
     }
 
@@ -65,5 +71,14 @@ class ArticlesController extends AppController
             $this->Flash->success(__('The {0} article has been delete', $article->title));
             return $this->redirect(['action' => 'index']);
         }
+    }
+
+    public function tags(...$tags)
+    {
+        $tags = $this->request->getParam('pass');
+
+        $articles = $this->Articles->find('tagged', ['tags' => $tags])->all();
+
+        $this->set(['articles' => $articles, 'tags' => $tags]);
     }
 }
