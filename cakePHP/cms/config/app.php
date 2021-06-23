@@ -77,7 +77,7 @@ return [
      */
     'Security' => [
         'salt' => env('SECURITY_SALT',
-        'krkrkrkrkrdokdodokdo'),
+        '3c75551a460558ee4286088387fbaf6a'),
     ],
 
     /*
